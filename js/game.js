@@ -399,56 +399,45 @@ class FlappyBirdGame {
                         currentState: self.stateManager.getState()
                     });
                     
-                    // 게임 상태가 START가 아니면 변경 시도
-                    if (!self.stateManager.isState(GameStateManager.State.START)) {
-                        GameDebug.warn("게임이 시작 상태가 아님, 시작 상태로 변경 시도", {
-                            currentState: self.stateManager.getState()
-                        });
-                        
-                        self.stateManager.changeState(GameStateManager.State.START);
-                        
-                        // 상태 변경 확인
-                        GameDebug.log("시작 상태로 변경 후 현재 상태", {
-                            newState: self.stateManager.getState(),
-                            isStartState: self.stateManager.isState(GameStateManager.State.START)
-                        });
-                    }
-                    
-                    // 플레이 상태로 변경 시도
-                    GameDebug.log("플레이 상태로 변경 시도");
-                    const changeResult = self.stateManager.changeState(GameStateManager.State.PLAYING);
-                    
-                    // 상태 변경 결과 로깅
-                    GameDebug.log("상태 변경 결과", {
-                        success: changeResult,
-                        newState: self.stateManager.getState(),
-                        isPlayingState: self.stateManager.isState(GameStateManager.State.PLAYING)
-                    });
-                    
-                    // 변경 후 UI 상태 확인
-                    const startScreen = document.getElementById('start-screen');
-                    const scoreDisplay = document.getElementById('score-display');
-                    
-                    if (startScreen) {
-                        GameDebug.traceElement(startScreen, 'start-screen after state change');
-                    }
-                    
-                    if (scoreDisplay) {
-                        GameDebug.traceElement(scoreDisplay, 'score-display after state change');
-                    }
-                    
-                    e.preventDefault();
+                    self.startGame();
                 });
                 
-                GameDebug.log("시작 버튼 이벤트 리스너 설정됨");
+                // 터치 이벤트 추가
+                startButton.addEventListener('touchstart', function(e) {
+                    // 기본 터치 동작 방지 (더블 탭으로 인한 확대 방지)
+                    e.preventDefault();
+                    
+                    GameDebug.log("시작 버튼 터치됨", {
+                        touches: e.touches.length,
+                        currentState: self.stateManager.getState()
+                    });
+                    
+                    self.startGame();
+                });
             } else {
                 GameDebug.error("시작 버튼 요소를 찾을 수 없음");
             }
             
-            // 재시작 버튼
+            // 게임 재시작 버튼
+            this.restartButton = document.getElementById('restart-button');
             if (this.restartButton) {
+                GameDebug.log("재시작 버튼 요소 찾음", this.restartButton);
+                
+                // 클릭 이벤트
                 this.restartButton.addEventListener('click', (e) => {
                     GameDebug.log("재시작 버튼 클릭됨", e);
+                    this.resetGame();
+                });
+                
+                // 터치 이벤트 추가
+                this.restartButton.addEventListener('touchstart', (e) => {
+                    // 기본 터치 동작 방지
+                    e.preventDefault();
+                    
+                    GameDebug.log("재시작 버튼 터치됨", {
+                        touches: e.touches.length
+                    });
+                    
                     this.resetGame();
                 });
             }
@@ -465,6 +454,28 @@ class FlappyBirdGame {
                     this.jump();
                 } else {
                     GameDebug.log("점프 무시 - 게임 상태가 PLAYING이 아님");
+                }
+            });
+            
+            // 모바일 터치 컨트롤 추가
+            this.canvas.addEventListener('touchstart', (e) => {
+                // 기본 터치 동작 방지 (스크롤 방지)
+                e.preventDefault();
+                
+                GameDebug.log("캔버스 터치됨", {
+                    state: this.stateManager.currentState,
+                    touches: e.touches.length,
+                    x: e.touches[0].clientX,
+                    y: e.touches[0].clientY
+                });
+                
+                if (this.stateManager.isState(GameStateManager.State.PLAYING)) {
+                    this.jump();
+                } else if (this.stateManager.isState(GameStateManager.State.START)) {
+                    GameDebug.log("시작 화면에서 터치 - 게임 시작");
+                    this.startGame();
+                } else if (this.stateManager.isState(GameStateManager.State.GAME_OVER)) {
+                    this.resetGame();
                 }
             });
             

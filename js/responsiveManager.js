@@ -41,6 +41,9 @@ class ResponsiveManager {
         // 전체 화면 상태
         this.isFullscreen = false;
         
+        // 모바일 장치 감지
+        this.isMobileDevice = this.detectMobileDevice();
+        
         // 터치 이벤트 지원 여부
         this.hasTouchSupport = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         
@@ -48,7 +51,60 @@ class ResponsiveManager {
         this.setupEventListeners();
         this.createFullscreenButton();
         this.setupTouchHandling();
+        this.setupMobileInterface();
         this.resize();
+    }
+    
+    /**
+     * 모바일 장치 감지
+     * @returns {boolean} 모바일 장치 여부
+     */
+    detectMobileDevice() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+               (window.innerWidth <= this.options.smallScreenThreshold);
+    }
+    
+    /**
+     * 모바일 터치 인터페이스 설정
+     */
+    setupMobileInterface() {
+        // 모바일 장치 또는 터치 지원 기기인 경우에만 설정
+        if (!this.isMobileDevice && !this.hasTouchSupport) return;
+        
+        // 모바일 터치 인터페이스 요소
+        const mobileInterface = document.querySelector('.mobile-touch-interface');
+        if (mobileInterface) {
+            // 게임 상태에 따라 표시/숨김 처리
+            window.addEventListener('gameStateChange', (e) => {
+                const state = e.detail.newState;
+                
+                if (state === 'playing') {
+                    mobileInterface.style.display = 'block';
+                } else {
+                    mobileInterface.style.display = 'none';
+                }
+            });
+            
+            // 모바일 화면에서는 시작/재시작 버튼 크기를 키움
+            if (this.isMobileDevice) {
+                const startButton = document.getElementById('start-button');
+                const restartButton = document.getElementById('restart-button');
+                
+                if (startButton) {
+                    startButton.classList.add('mobile-button');
+                }
+                
+                if (restartButton) {
+                    restartButton.classList.add('mobile-button');
+                }
+                
+                // 모바일용 지시문 추가
+                const instructions = document.querySelector('.instructions');
+                if (instructions) {
+                    instructions.innerHTML = '화면을 탭하여 새를 점프시키세요';
+                }
+            }
+        }
     }
     
     /**

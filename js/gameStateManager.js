@@ -171,6 +171,30 @@ class GameStateManager {
                 });
             }
             
+            // 상태 변경 이벤트 발생
+            try {
+                const stateChangeEvent = new CustomEvent('gameStateChange', {
+                    detail: {
+                        oldState: oldState,
+                        newState: newState
+                    },
+                    bubbles: true
+                });
+                
+                window.dispatchEvent(stateChangeEvent);
+                
+                if (window.GameDebug) {
+                    window.GameDebug.log("상태 변경 이벤트 발생", {
+                        oldState,
+                        newState
+                    });
+                }
+            } catch (eventError) {
+                if (window.GameDebug) {
+                    window.GameDebug.error("상태 변경 이벤트 발생 중 오류", eventError);
+                }
+            }
+            
             if (window.GameDebug) {
                 window.GameDebug.log(`상태 변경 완료: ${oldState} -> ${newState}`);
             }
