@@ -994,6 +994,9 @@ class FlappyBirdGame {
             // 점수 시스템 초기화
             this.scoreSystem.reset();
             
+            // 충돌 시스템 초기화
+            this.collisionSystem.reset();
+            
             // 게임 요소 초기화
             this.initGameObjects();
             this.pipeManager.reset();
@@ -1088,6 +1091,9 @@ class FlappyBirdGame {
         
         // 점수 시스템 초기화
         this.scoreSystem.reset();
+        
+        // 충돌 시스템 초기화
+        this.collisionSystem.reset();
         
         // Bird 객체 초기화
         if (this.bird) {

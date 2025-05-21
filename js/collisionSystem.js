@@ -18,6 +18,15 @@ class CollisionSystem {
     }
     
     /**
+     * 충돌 시스템 상태 초기화
+     */
+    reset() {
+        this.isShowingCollision = false;
+        this.collisionEffectTimer = 0;
+        this.lastCollisionPoint = null;
+    }
+    
+    /**
      * 디버그 모드 설정
      * @param {boolean} enabled - 디버그 모드 활성화 여부
      */
