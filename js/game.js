@@ -466,7 +466,10 @@ class FlappyBirdGame {
                     state: this.stateManager.currentState,
                     touches: e.touches.length,
                     x: e.touches[0].clientX,
-                    y: e.touches[0].clientY
+                    y: e.touches[0].clientY,
+                    target: e.target.tagName,
+                    canvasRect: this.canvas.getBoundingClientRect(),
+                    eventTimeStamp: e.timeStamp
                 });
                 
                 if (this.stateManager.isState(GameStateManager.State.PLAYING)) {
@@ -478,6 +481,43 @@ class FlappyBirdGame {
                     this.resetGame();
                 }
             });
+            
+            // 문서 전체 터치 이벤트 추가 (게임 화면 외부 포함)
+            document.addEventListener('touchstart', (e) => {
+                // 터치된 요소가 게임 캔버스나 다른 인터랙티브 요소인 경우 이미 처리됨
+                const target = e.target;
+                const isGameElement = 
+                    target === this.canvas || 
+                    target === this.restartButton || 
+                    target === startButton ||
+                    target.closest('#ui-layer') !== null;
+                
+                GameDebug.log("문서 터치됨", {
+                    state: this.stateManager.currentState,
+                    touches: e.touches.length,
+                    x: e.touches[0].clientX,
+                    y: e.touches[0].clientY,
+                    target: e.target.tagName,
+                    targetId: e.target.id,
+                    targetClass: e.target.className,
+                    isGameElement: isGameElement,
+                    eventTimeStamp: e.timeStamp,
+                    eventPath: getEventPath(e)
+                });
+                
+                // 게임 요소가 아닌 곳을 터치했을 때 게임 플레이 중이면 점프
+                if (!isGameElement && this.stateManager.isState(GameStateManager.State.PLAYING)) {
+                    this.jump();
+                    e.preventDefault(); // 스크롤 등 방지
+                } else if (!isGameElement && this.stateManager.isState(GameStateManager.State.START)) {
+                    GameDebug.log("게임 영역 외부에서 시작 화면 터치 - 게임 시작");
+                    this.startGame();
+                    e.preventDefault();
+                } else if (!isGameElement && this.stateManager.isState(GameStateManager.State.GAME_OVER)) {
+                    this.resetGame();
+                    e.preventDefault();
+                }
+            }, {passive: false});
             
             // 점프 컨트롤 (키보드)
             document.addEventListener('keydown', (e) => {
@@ -1282,4 +1322,19 @@ class FlappyBirdGame {
 // 페이지 로드 시 게임 초기화
 window.addEventListener('DOMContentLoaded', () => {
     window.game = new FlappyBirdGame();
-}); 
+});
+
+// 이벤트 경로를 문자열로 변환하는 헬퍼 함수
+function getEventPath(event) {
+    const path = [];
+    let currentElement = event.target;
+    
+    while (currentElement) {
+        path.push(currentElement.tagName + 
+            (currentElement.id ? `#${currentElement.id}` : '') + 
+            (currentElement.className ? `.${currentElement.className}` : ''));
+        currentElement = currentElement.parentElement;
+    }
+    
+    return path.join(' > ');
+} 
