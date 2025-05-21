@@ -98,8 +98,24 @@ window.GameDebug = {
     traceEvent: function(event, handler, result) {
         if (!this.enabled) return;
         
-        this.log(`이벤트 처리 [${event}]:`, {
-            event: event,
+        // 이벤트 객체는 직접 로깅하면 복제가 불가능할 수 있으므로
+        // 필요한 속성만 추출하여 새 객체로 만듦
+        let eventData = {
+            type: event.type || 'unknown',
+            timestamp: event.timeStamp || Date.now()
+        };
+        
+        // 추가적인 이벤트 정보 수집 (안전하게)
+        if (event.target) {
+            eventData.target = {
+                tagName: event.target.tagName,
+                id: event.target.id,
+                className: event.target.className
+            };
+        }
+        
+        this.log(`이벤트 처리 [${eventData.type}]:`, {
+            eventData: eventData,
             handler: handler.name || '익명 함수',
             result: result
         });
@@ -425,7 +441,11 @@ class FlappyBirdGame {
                 
                 // 클릭 이벤트
                 this.restartButton.addEventListener('click', (e) => {
-                    GameDebug.log("재시작 버튼 클릭됨", e);
+                    GameDebug.log("재시작 버튼 클릭됨", {
+                        type: e.type,
+                        target: e.target.id,
+                        timestamp: e.timeStamp
+                    });
                     this.resetGame();
                 });
                 
@@ -435,7 +455,10 @@ class FlappyBirdGame {
                     e.preventDefault();
                     
                     GameDebug.log("재시작 버튼 터치됨", {
-                        touches: e.touches.length
+                        touches: e.touches.length,
+                        type: e.type,
+                        target: e.target.id,
+                        timestamp: e.timeStamp
                     });
                     
                     this.resetGame();
@@ -492,6 +515,16 @@ class FlappyBirdGame {
                     target === startButton ||
                     target.closest('#ui-layer') !== null;
                 
+                // 이벤트 경로 안전하게 수집
+                const eventPath = [];
+                let currentElement = e.target;
+                while (currentElement) {
+                    eventPath.push(currentElement.tagName + 
+                        (currentElement.id ? `#${currentElement.id}` : '') + 
+                        (currentElement.className ? `.${currentElement.className}` : ''));
+                    currentElement = currentElement.parentElement;
+                }
+                
                 GameDebug.log("문서 터치됨", {
                     state: this.stateManager.currentState,
                     touches: e.touches.length,
@@ -502,7 +535,7 @@ class FlappyBirdGame {
                     targetClass: e.target.className,
                     isGameElement: isGameElement,
                     eventTimeStamp: e.timeStamp,
-                    eventPath: getEventPath(e)
+                    eventPath: eventPath.join(' > ')
                 });
                 
                 // 게임 요소가 아닌 곳을 터치했을 때 게임 플레이 중이면 점프
@@ -1328,19 +1361,4 @@ class FlappyBirdGame {
 // 페이지 로드 시 게임 초기화
 window.addEventListener('DOMContentLoaded', () => {
     window.game = new FlappyBirdGame();
-});
-
-// 이벤트 경로를 문자열로 변환하는 헬퍼 함수
-function getEventPath(event) {
-    const path = [];
-    let currentElement = event.target;
-    
-    while (currentElement) {
-        path.push(currentElement.tagName + 
-            (currentElement.id ? `#${currentElement.id}` : '') + 
-            (currentElement.className ? `.${currentElement.className}` : ''));
-        currentElement = currentElement.parentElement;
-    }
-    
-    return path.join(' > ');
-} 
+}); 
