@@ -9,8 +9,9 @@ class PipeManager {
      * @param {number} groundHeight - 지면 높이
      * @param {Object} config - 파이프 설정 (간격, 속도 등)
      * @param {Object} images - 파이프 이미지 (상단, 하단)
+     * @param {Array} adImages - 광고 이미지 배열 (선택사항)
      */
-    constructor(canvasWidth, canvasHeight, groundHeight, config, images) {
+    constructor(canvasWidth, canvasHeight, groundHeight, config, images, adImages = []) {
         // 캔버스 정보
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
@@ -29,9 +30,14 @@ class PipeManager {
         // 이미지
         this.images = images || { topImage: null, bottomImage: null };
         
+        // 광고 이미지
+        this.adImages = adImages;
+        this.adFrequency = [3, 5, 7, 9, 12, 15]; // 광고가 표시될 파이프 인덱스
+        
         // 상태
         this.pipes = []; // 현재 화면에 있는 파이프 배열
         this.timer = 0; // 파이프 생성 타이머
+        this.pipeCount = 0; // 생성된 파이프 카운트
     }
     
     /**
@@ -41,13 +47,27 @@ class PipeManager {
         // 파이프 간격(새가 지나갈 수 있는 공간)의 위치 랜덤 설정
         const gapY = Math.random() * (this.maxGapY - this.minGapY) + this.minGapY;
         
+        // 파이프 카운트 증가
+        this.pipeCount++;
+        
+        // 광고 이미지 선택 (특정 파이프 번호에만 표시)
+        let adImage = null;
+        if (this.adImages.length > 0 && this.adFrequency.includes(this.pipeCount)) {
+            // 광고 이미지 중 랜덤 선택
+            const randomAdIndex = Math.floor(Math.random() * this.adImages.length);
+            adImage = this.adImages[randomAdIndex];
+            console.log(`파이프 #${this.pipeCount}에 광고 이미지 추가됨`);
+        }
+        
         // 새로운 파이프 객체 생성
         const pipe = new Pipe(
             this.canvasWidth, // 화면 오른쪽에서 시작
             gapY,
             this.pipeGap,
             this.pipeWidth,
-            this.images
+            this.images,
+            adImage,
+            this.pipeCount // 파이프 번호
         );
         
         // 파이프 배열에 추가
@@ -139,6 +159,7 @@ class PipeManager {
     reset() {
         this.pipes = [];
         this.timer = 0;
+        this.pipeCount = 0; // 파이프 카운트 초기화
     }
     
     /**

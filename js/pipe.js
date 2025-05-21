@@ -9,8 +9,10 @@ class Pipe {
      * @param {number} gapHeight - 파이프 간격의 높이
      * @param {number} width - 파이프의 너비
      * @param {Object} images - 파이프 이미지 객체 (topImage, bottomImage)
+     * @param {Image} adImage - 광고 이미지 (선택사항)
+     * @param {number} pipeNumber - 파이프 번호 (선택사항)
      */
-    constructor(x, gapY, gapHeight, width, images) {
+    constructor(x, gapY, gapHeight, width, images, adImage = null, pipeNumber = 0) {
         // 위치 및 크기
         this.x = x;
         this.width = width || 60;
@@ -20,6 +22,10 @@ class Pipe {
         // 이미지
         this.topImage = images ? images.topImage : null;
         this.bottomImage = images ? images.bottomImage : null;
+        
+        // 광고 이미지 관련
+        this.adImage = adImage;
+        this.pipeNumber = pipeNumber;
         
         // 상태
         this.scored = false; // 이 파이프를 통과해 점수를 획득했는지 여부
@@ -95,6 +101,33 @@ class Pipe {
             // 이미지가 없는 경우 대체 렌더링
             ctx.fillStyle = '#75B855'; // 녹색
             ctx.fillRect(this.x, this.gapY + this.gapHeight, this.width, bottomPipeHeight);
+        }
+        
+        // 광고 이미지 렌더링 (있는 경우)
+        if (this.adImage) {
+            // 파이프 사이 가운데에 이미지 표시
+            const adWidth = this.width * 1.5; // 파이프보다 약간 넓게
+            const adHeight = this.gapHeight * 0.75; // 간격의 75% 높이로
+            
+            const adX = this.x - (adWidth - this.width) / 2; // 파이프 중앙에 위치
+            const adY = this.gapY + (this.gapHeight - adHeight) / 2; // 간격 중앙에 위치
+            
+            // 광고 이미지 그리기
+            ctx.drawImage(
+                this.adImage,
+                adX,
+                adY,
+                adWidth,
+                adHeight
+            );
+            
+            // 디버그 모드일 경우 파이프 번호 표시
+            if (debug) {
+                ctx.fillStyle = 'white';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`#${this.pipeNumber}`, adX + adWidth / 2, adY - 5);
+            }
         }
         
         // 컨텍스트 복원

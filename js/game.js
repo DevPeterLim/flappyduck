@@ -640,7 +640,12 @@ class FlappyBirdGame {
             'background': 'assets/images/background.svg',
             'ground': 'assets/images/ground.svg',
             'pipeTop': 'assets/images/pipe-top.svg',
-            'pipeBottom': 'assets/images/pipe-bottom.svg'
+            'pipeBottom': 'assets/images/pipe-bottom.svg',
+            // 광고 이미지 추가
+            'ad1': 'assets/images/ad1.png',
+            'ad2': 'assets/images/ad2.png',
+            'ad3': 'assets/images/ad3.png',
+            'ad4': 'assets/images/ad4.jpeg'
         };
         
         // 게임에 필요한 오디오 파일 목록
@@ -815,6 +820,14 @@ class FlappyBirdGame {
                 bottomImage: AssetLoader.getImage('pipeBottom')
             };
             
+            // 광고 이미지 배열 만들기
+            const adImages = [
+                AssetLoader.getImage('ad1'),
+                AssetLoader.getImage('ad2'),
+                AssetLoader.getImage('ad3'),
+                AssetLoader.getImage('ad4')
+            ];
+            
             const pipeConfig = {
                 pipeWidth: GameConfig.PIPE_WIDTH,
                 pipeGap: GameConfig.PIPE_GAP,
@@ -829,7 +842,8 @@ class FlappyBirdGame {
                     this.canvas.height,
                     GameConfig.GROUND_HEIGHT,
                     pipeConfig,
-                    pipeImages
+                    pipeImages,
+                    adImages // 광고 이미지 전달
                 );
                 GameDebug.log("파이프 매니저 초기화 완료");
             } else {
