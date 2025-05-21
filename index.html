@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="웹 브라우저에서 즐기는 Flappy Bird 스타일 게임">
+    <meta name="author" content="Your Name">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="웹 플래피버드">
+    <title>웹 플래피버드</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- 파비콘 (필요시 추가) -->
+    <!-- <link rel="icon" type="image/png" href="assets/images/favicon.png"> -->
+    
+    <!-- 기본 디버그 오류 핸들러 설정 -->
+    <script>
+        // 전역 오류 핸들러 설정
+        window.addEventListener('error', function(e) {
+            console.error('전역 에러 발생:', e.error ? (e.error.stack || e.error.message) : e.message);
+            
+            // 디버그 UI에 오류 표시
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = `오류: ${e.error ? e.error.message : e.message}`;
+            errorDiv.style.position = 'fixed';
+            errorDiv.style.top = '10px';
+            errorDiv.style.left = '10px';
+            errorDiv.style.backgroundColor = 'rgba(255,0,0,0.8)';
+            errorDiv.style.color = 'white';
+            errorDiv.style.padding = '10px';
+            errorDiv.style.borderRadius = '5px';
+            errorDiv.style.maxWidth = '80%';
+            errorDiv.style.zIndex = '9999';
+            document.body.appendChild(errorDiv);
+            
+            // 5초 후 오류 메시지 제거
+            setTimeout(() => {
+                document.body.removeChild(errorDiv);
+            }, 5000);
+        });
+        
+        // 스크립트 로드 상태 추적
+        window.scriptLoadStatus = {
+            loaded: {},
+            errors: {},
+            markLoaded: function(scriptName) {
+                this.loaded[scriptName] = true;
+                console.log(`스크립트 로드됨: ${scriptName}`);
+            },
+            markError: function(scriptName, error) {
+                this.errors[scriptName] = error;
+                console.error(`스크립트 로드 실패: ${scriptName}`, error);
+            },
+            getStatus: function() {
+                return {
+                    loaded: {...this.loaded},
+                    errors: {...this.errors}
+                };
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- 게임 타이틀 -->
+        <h1 id="gameTitle">웹 플래피버드</h1>
+        
+        <!-- 게임 캔버스 -->
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- 게임 UI 요소 -->
+        <div id="ui-layer">
+            <div id="start-screen" class="screen">
+                <button id="start-button">게임 시작</button>
+                <p class="instructions">스페이스바 또는 클릭/탭으로 새를 점프시키세요</p>
+            </div>
+            <div id="game-over-screen" class="screen hidden">
+                <h2>게임 오버</h2>
+                <p id="final-score">점수: <span>0</span></p>
+                <p id="high-score">최고 점수: <span>0</span></p>
+                <button id="restart-button">다시 시작</button>
+            </div>
+            <div id="pause-screen" class="screen hidden">
+                <h2>일시정지</h2>
+                <p>ESC를 눌러 게임을 계속하세요</p>
+            </div>
+            <div id="score-display">0</div>
+            <div id="audio-control" class="button">
+                <span class="audio-on">🔊</span>
+                <span class="audio-off hidden">🔇</span>
+            </div>
+            <div class="volume-control">
+                <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="50">
+            </div>
+        </div>
+    </div>
+    
+    <!-- 디버그 콘솔 (F2로 토글) -->
+    <div id="debug-console" class="hidden">
+        <div id="debug-console-header">
+            <div id="debug-console-title">게임 디버그 콘솔</div>
+            <div id="debug-console-controls">
+                <button class="debug-button" id="debug-clear-button">지우기</button>
+                <button class="debug-button" id="debug-close-button">닫기</button>
+                <button class="debug-button" id="debug-scripts-button">스크립트 상태</button>
+            </div>
+        </div>
+        <div id="debug-log-container">
+            <div id="debug-log-content"></div>
+        </div>
+        <div id="debug-status-bar">
+            <div id="debug-current-state">상태: 초기화 중...</div>
+            <div id="debug-fps">FPS: 0</div>
+        </div>
+    </div>
+
+    <!-- 스크립트 로드 상태 모니터링 -->
+    <script>
+        function loadScript(src, name) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    window.scriptLoadStatus.markLoaded(name || src);
+                    resolve();
+                };
+                script.onerror = (error) => {
+                    window.scriptLoadStatus.markError(name || src, error);
+                    reject(new Error(`스크립트 로드 실패: ${src}`));
+                };
+                document.body.appendChild(script);
+            });
+        }
+    </script>
+
+    <!-- 유틸리티 스크립트 -->
+    <script src="js/utils/assetLoader.js" onerror="window.scriptLoadStatus.markError('assetLoader.js')" onload="window.scriptLoadStatus.markLoaded('assetLoader.js')"></script>
+    <script src="js/utils/renderUtils.js" onerror="window.scriptLoadStatus.markError('renderUtils.js')" onload="window.scriptLoadStatus.markLoaded('renderUtils.js')"></script>
+    <script src="js/utils/gameLoop.js" onerror="window.scriptLoadStatus.markError('gameLoop.js')" onload="window.scriptLoadStatus.markLoaded('gameLoop.js')"></script>
+    
+    <!-- 게임 클래스 스크립트 -->
+    <script src="js/bird.js" onerror="window.scriptLoadStatus.markError('bird.js')" onload="window.scriptLoadStatus.markLoaded('bird.js')"></script>
+    <script src="js/pipe.js" onerror="window.scriptLoadStatus.markError('pipe.js')" onload="window.scriptLoadStatus.markLoaded('pipe.js')"></script>
+    <script src="js/pipeManager.js" onerror="window.scriptLoadStatus.markError('pipeManager.js')" onload="window.scriptLoadStatus.markLoaded('pipeManager.js')"></script>
+    <script src="js/collisionSystem.js" onerror="window.scriptLoadStatus.markError('collisionSystem.js')" onload="window.scriptLoadStatus.markLoaded('collisionSystem.js')"></script>
+    <script src="js/scoreSystem.js" onerror="window.scriptLoadStatus.markError('scoreSystem.js')" onload="window.scriptLoadStatus.markLoaded('scoreSystem.js')"></script>
+    <script src="js/backgroundManager.js" onerror="window.scriptLoadStatus.markError('backgroundManager.js')" onload="window.scriptLoadStatus.markLoaded('backgroundManager.js')"></script>
+    <script src="js/gameStateManager.js" onerror="window.scriptLoadStatus.markError('gameStateManager.js')" onload="window.scriptLoadStatus.markLoaded('gameStateManager.js')"></script>
+    <script src="js/audioManager.js" onerror="window.scriptLoadStatus.markError('audioManager.js')" onload="window.scriptLoadStatus.markLoaded('audioManager.js')"></script>
+    <script src="js/responsiveManager.js" onerror="window.scriptLoadStatus.markError('responsiveManager.js')" onload="window.scriptLoadStatus.markLoaded('responsiveManager.js')"></script>
+    
+    <!-- 디버그 스크립트 -->
+    <script>
+        // 디버그 콘솔 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM 로드 완료, 디버그 콘솔 초기화 시작');
+            
+            // 디버그 버튼 핸들러
+            const clearButton = document.getElementById('debug-clear-button');
+            const closeButton = document.getElementById('debug-close-button');
+            const scriptsButton = document.getElementById('debug-scripts-button');
+            
+            if (clearButton) {
+                clearButton.addEventListener('click', function() {
+                    if (window.GameDebug) {
+                        window.GameDebug.clearLogs();
+                    }
+                });
+            }
+            
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    if (window.GameDebug) {
+                        window.GameDebug.toggleConsole();
+                    }
+                });
+            }
+            
+            if (scriptsButton) {
+                scriptsButton.addEventListener('click', function() {
+                    // 스크립트 로드 상태 로그
+                    console.log('스크립트 로드 상태:', window.scriptLoadStatus.getStatus());
+                    
+                    // 게임 객체 확인
+                    console.log('게임 객체 상태:', {
+                        game: window.game ? '존재함' : '없음',
+                        GameStateManager: window.GameStateManager ? '정의됨' : '미정의',
+                        BackgroundManager: window.BackgroundManager ? '정의됨' : '미정의',
+                        Bird: window.Bird ? '정의됨' : '미정의'
+                    });
+                    
+                    if (window.GameDebug) {
+                        window.GameDebug.log('스크립트 로드 상태', window.scriptLoadStatus.getStatus());
+                    }
+                    
+                    // 알림 표시
+                    const notification = document.createElement('div');
+                    notification.className = 'debug-notification';
+                    notification.textContent = '스크립트 상태 로그가 콘솔에 출력되었습니다 (F12로 확인)';
+                    notification.style.position = 'fixed';
+                    notification.style.bottom = '10px';
+                    notification.style.left = '10px';
+                    notification.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                    notification.style.color = 'white';
+                    notification.style.padding = '10px';
+                    notification.style.borderRadius = '5px';
+                    notification.style.zIndex = '9999';
+                    document.body.appendChild(notification);
+                    
+                    // 3초 후 알림 제거
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 3000);
+                });
+            }
+            
+            // FPS 및 상태 업데이트
+            function updateDebugStatus() {
+                const stateElement = document.getElementById('debug-current-state');
+                const fpsElement = document.getElementById('debug-fps');
+                
+                if (stateElement && window.GameDebug && window.GameDebug.getGameState) {
+                    const gameState = window.GameDebug.getGameState();
+                    stateElement.textContent = `상태: ${typeof gameState === 'object' && gameState.currentState ? gameState.currentState : (gameState || '알 수 없음')}`;
+                }
+                
+                if (fpsElement && window.game && window.game.getFPS) {
+                    fpsElement.textContent = `FPS: ${Math.round(window.game.getFPS() || 0)}`;
+                }
+                
+                requestAnimationFrame(updateDebugStatus);
+            }
+            
+            updateDebugStatus();
+            console.log('디버그 콘솔 초기화 완료');
+        });
+    </script>
+    
+    <!-- 메인 게임 스크립트 -->
+    <script src="js/game.js" onerror="window.scriptLoadStatus.markError('game.js')" onload="window.scriptLoadStatus.markLoaded('game.js')"></script>
+</body>
+</html> 

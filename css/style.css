@@ -1,0 +1,476 @@
+/* 전역 스타일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f0f0;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    height: 100%;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.container {
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+/* 게임 제목 스타일 */
+#gameTitle {
+    font-size: 2.5rem;
+    color: #4CAF50;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 캔버스 스타일 */
+#gameCanvas {
+    background-color: #87CEEB;
+    border: 3px solid #333;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    touch-action: none;
+}
+
+/* UI 레이어 스타일 */
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* UI를 통과하는 클릭이 가능하도록 */
+}
+
+/* 스크린 공통 스타일 */
+.screen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    pointer-events: auto; /* 스크린 내부 요소 클릭 가능 */
+    max-width: 90%;
+    width: 320px;
+}
+
+/* 버튼 스타일 */
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    pointer-events: auto; /* 버튼 클릭 가능 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* 점수 표시 스타일 */
+#score-display {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease-out;
+    z-index: 10;
+}
+
+/* 점수 강조 애니메이션 */
+@keyframes scoreFlash {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+/* 오디오 컨트롤 버튼 */
+#audio-control {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    pointer-events: auto; /* 오디오 버튼 클릭 가능 */
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+    z-index: 20;
+}
+
+#audio-control:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    transform: scale(1.1);
+}
+
+#audio-control:active {
+    transform: scale(0.95);
+}
+
+/* 볼륨 슬라이더 컨테이너 */
+.volume-control {
+    position: absolute;
+    top: 10px;
+    left: 60px;
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 5px 10px;
+    border-radius: 15px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 15;
+}
+
+#audio-control:hover + .volume-control,
+.volume-control:hover {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 볼륨 슬라이더 스타일 */
+.volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 80px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    outline: none;
+    transition: background 0.3s;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* 유틸리티 클래스 */
+.hidden {
+    display: none;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    #gameTitle {
+        font-size: 2rem;
+        margin-bottom: 15px;
+    }
+    
+    /* 더 큰 버튼 (터치 타겟 향상) */
+    .game-button {
+        width: 48px;
+        height: 48px;
+        font-size: 1.8rem;
+    }
+    
+    /* 단순화된 UI */
+    #start-screen .instructions {
+        font-size: 14px;
+        max-width: 90%;
+        margin: 10px auto;
+    }
+    
+    /* 작은 화면에서 점수 표시 */
+    #score-display {
+        font-size: 1.5rem;
+        top: 5px;
+        right: 5px;
+    }
+    
+    button {
+        padding: 12px 24px;
+        font-size: 1rem;
+        margin: 8px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    #gameTitle {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+    
+    .screen {
+        padding: 15px;
+        width: 280px;
+    }
+    
+    button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    .container {
+        padding: 5px;
+    }
+}
+
+/* 게임 버튼 공통 스타일 */
+.game-button {
+    position: absolute;
+    z-index: 100;
+    background-color: rgba(0, 0, 0, 0.3);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    color: white;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.game-button:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    transform: scale(1.1);
+}
+
+.game-button:active {
+    transform: scale(0.95);
+}
+
+/* 전체 화면 버튼 */
+#fullscreen-button {
+    bottom: 15px;
+    right: 15px;
+}
+
+/* 가로 방향 (Landscape) 스타일 */
+@media (orientation: landscape) and (max-height: 500px) {
+    /* 게임 타이틀 숨김 */
+    #gameTitle {
+        display: none;
+    }
+    
+    /* 버튼 위치 조정 */
+    #fullscreen-button {
+        top: 10px;
+        right: 10px;
+        bottom: auto;
+    }
+    
+    /* 컨테이너 패딩 감소 */
+    .container {
+        padding: 5px;
+    }
+    
+    /* 화면 스타일 조정 */
+    .screen {
+        width: 260px;
+        padding: 10px;
+    }
+    
+    /* 게임 UI 요소 위치 조정 */
+    #score-display {
+        font-size: 1.3rem;
+    }
+}
+
+/* 게임 컨테이너를 화면 가득 채우기 위한 스타일 */
+.fullscreen-active .container {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 안전 영역 처리 (노치 디자인) */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+        padding-top: max(0px, env(safe-area-inset-top));
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+    
+    #fullscreen-button {
+        bottom: max(15px, env(safe-area-inset-bottom) + 5px);
+        right: max(15px, env(safe-area-inset-right) + 5px);
+    }
+}
+
+/* 디버그 콘솔 스타일 */
+#debug-console {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 400px;
+    height: 300px;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    font-family: monospace;
+    font-size: 12px;
+    border-top-left-radius: 8px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+}
+
+#debug-console.hidden {
+    display: none;
+}
+
+#debug-console-header {
+    padding: 8px;
+    background-color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 8px;
+}
+
+#debug-console-title {
+    font-weight: bold;
+}
+
+#debug-console-controls {
+    display: flex;
+    gap: 8px;
+}
+
+#debug-log-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+#debug-log-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.debug-log-entry {
+    padding: 4px;
+    border-radius: 4px;
+    line-height: 1.4;
+}
+
+.debug-log-time {
+    color: #888;
+    margin-right: 8px;
+}
+
+.debug-log-message {
+    color: #fff;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.debug-log-log {
+    border-left: 2px solid #5a9cff;
+}
+
+.debug-log-warn {
+    border-left: 2px solid #ffb74d;
+    background-color: rgba(255, 183, 77, 0.2);
+}
+
+.debug-log-error {
+    border-left: 2px solid #ff5252;
+    background-color: rgba(255, 82, 82, 0.2);
+}
+
+#debug-status-bar {
+    padding: 6px 8px;
+    background-color: #444;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+}
+
+.debug-button {
+    padding: 2px 8px;
+    background-color: #555;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.debug-button:hover {
+    background-color: #777;
+} 

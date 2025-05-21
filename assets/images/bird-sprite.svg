@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="30" viewBox="0 0 120 30">
+  <!-- 3프레임 새 스프라이트 (각 프레임 40x30) -->
+  
+  <!-- 프레임 1 (날개 위) -->
+  <g transform="translate(0, 0)">
+    <!-- 새 몸체 -->
+    <ellipse cx="20" cy="15" rx="18" ry="13" fill="#FFD700" />
+    <!-- 부리 -->
+    <polygon points="32,10 42,15 32,20" fill="#FF6347" />
+    <!-- 눈 -->
+    <circle cx="26" cy="10" r="2.5" fill="black" />
+    <!-- 날개 (위로 올라감) -->
+    <ellipse cx="13" cy="8" rx="8" ry="6" fill="#FFA500" transform="rotate(-15, 13, 8)" />
+  </g>
+  
+  <!-- 프레임 2 (중간 날개) -->
+  <g transform="translate(40, 0)">
+    <!-- 새 몸체 -->
+    <ellipse cx="20" cy="15" rx="18" ry="13" fill="#FFD700" />
+    <!-- 부리 -->
+    <polygon points="32,10 42,15 32,20" fill="#FF6347" />
+    <!-- 눈 -->
+    <circle cx="26" cy="10" r="2.5" fill="black" />
+    <!-- 날개 (중간 위치) -->
+    <ellipse cx="13" cy="15" rx="8" ry="6" fill="#FFA500" />
+  </g>
+  
+  <!-- 프레임 3 (날개 아래) -->
+  <g transform="translate(80, 0)">
+    <!-- 새 몸체 -->
+    <ellipse cx="20" cy="15" rx="18" ry="13" fill="#FFD700" />
+    <!-- 부리 -->
+    <polygon points="32,10 42,15 32,20" fill="#FF6347" />
+    <!-- 눈 -->
+    <circle cx="26" cy="10" r="2.5" fill="black" />
+    <!-- 날개 (아래로 내려감) -->
+    <ellipse cx="13" cy="22" rx="8" ry="6" fill="#FFA500" transform="rotate(15, 13, 22)" />
+  </g>
+</svg> 

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- 하늘 배경 -->
+  <rect x="0" y="0" width="800" height="600" fill="#87CEEB" />
+  
+  <!-- 구름들 -->
+  <g opacity="0.8">
+    <!-- 구름 1 -->
+    <ellipse cx="100" cy="150" rx="40" ry="30" fill="white" />
+    <ellipse cx="130" cy="140" rx="30" ry="25" fill="white" />
+    <ellipse cx="160" cy="150" rx="35" ry="30" fill="white" />
+    <ellipse cx="130" cy="160" rx="40" ry="25" fill="white" />
+    
+    <!-- 구름 2 -->
+    <ellipse cx="320" cy="100" rx="35" ry="25" fill="white" />
+    <ellipse cx="350" cy="90" rx="30" ry="20" fill="white" />
+    <ellipse cx="380" cy="100" rx="30" ry="25" fill="white" />
+    <ellipse cx="350" cy="110" rx="35" ry="20" fill="white" />
+    
+    <!-- 구름 3 -->
+    <ellipse cx="580" cy="180" rx="45" ry="30" fill="white" />
+    <ellipse cx="620" cy="170" rx="35" ry="25" fill="white" />
+    <ellipse cx="650" cy="185" rx="40" ry="30" fill="white" />
+    <ellipse cx="610" cy="190" rx="45" ry="25" fill="white" />
+  </g>
+  
+  <!-- 원경 산 -->
+  <path d="M0,400 L200,300 L300,350 L450,250 L600,380 L800,320 L800,600 L0,600 Z" fill="#9EB25D" opacity="0.6" />
+  
+  <!-- 중경 산 -->
+  <path d="M0,450 L150,380 L250,420 L350,350 L500,420 L650,360 L800,400 L800,600 L0,600 Z" fill="#8FBC8F" opacity="0.8" />
+</svg> 
